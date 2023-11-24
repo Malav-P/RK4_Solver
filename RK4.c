@@ -124,6 +124,37 @@ double** solve_ivp(double x_0[], int size, double t_span[], double h, double* (*
 	return answer;
 }
 
+/**************************************************************************************************************************************/
+
+/* dxdt is a function to return the right-hand-side of the equation xdot = f(t, x)
+
+---INPUTS -------------------------------------------------------------------------------------
+
+t : a double representing the time variable in the sytem
+x : a pointer variable pointing to the first element of the state vector containing elements of type double
+size: an int variable representing the number of elements in the state vector
+
+---OUTPUTS-------------------------------------------------------------------------------------
+
+f : a pointer variable to the array that describes the RHS of xdot = f(t, x)
+
+-----------------------------------------------------------------------------------------------*/
+
+double* dxdt(double t, double* x, int size){               /* double* states that dxdt returns a pointer that points to a double type*/
+
+	double* f;                                             /* f is a pointer to &f[0], the first element in the array of doubles.*/
+	f = (double*)calloc(size, sizeof(double));	           /* allocating space in memory for the array. f points to the first cell in the array*/
+	f[0] = *(x+1);
+	f[1] = -2*0.1*10**(x+1) - 100**(x);
+	f[2] = 3*t*t;
+	f[3] = 2*t;
+
+	return f;                                              /* return the pointer that points to the first element in the array of doubles*/
+}
+
+/*****************************************************************************************************************************************/
+
+
 /*---END FUNCTION DECLARATION AND BODY-----------------------------------------------------------------------------*/
 
 /******************************************************************************************************************************************/
@@ -140,41 +171,18 @@ int main(){
     double t_s[2] = {0, 2};                                     /* time span of integration*/
     double h = 0.0001;                                          /* time step of integrator*/
 
-    /**************************************************************************************************************************************/
 
-	/* dxdt is a function to return the right-hand-side of the equation xdot = f(t, x)
-
-	---INPUTS -------------------------------------------------------------------------------------
-
-	t : a double representing the time variable in the sytem
-	x : a pointer variable pointing to the first element of the state vector containing elements of type double
-	size: an int variable representing the number of elements in the state vector
-
-	---OUTPUTS-------------------------------------------------------------------------------------
-
-	f : a pointer variable to the array that describes the RHS of xdot = f(t, x)
-
-	-----------------------------------------------------------------------------------------------*/
-
-	double* dxdt(double t, double* x, int size){               /* double* states that dxdt returns a pointer that points to a double type*/
-
-		double* f;                                             /* f is a pointer to &f[0], the first element in the array of doubles.*/
-		f = (double*)calloc(size, sizeof(double));	           /* allocating space in memory for the array. f points to the first cell in the array*/
-		f[0] = *(x+1);
-		f[1] = -2*0.1*10**(x+1) - 100**(x);
-		f[2] = 3*t*t;
-		f[3] = 2*t;
-
-		return f;                                              /* return the pointer that points to the first element in the array of doubles*/
-	}
-
-	/*****************************************************************************************************************************************/
-    
     int siz = sizeof(y_0)/sizeof(double);                  /* length of state vector*/
     double** ans = solve_ivp(y_0, siz, t_s, h, &dxdt);
 
     printf("program complete, press enter to exit\n");
     getchar();
+
+	int no_of_points = ceil((t_s[1]-t_s[0])/h);
+    for(int i=0;i<no_of_points;++i){
+        free(ans[i]);
+    }
+	free(ans);
     
 }
 
